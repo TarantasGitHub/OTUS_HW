@@ -4,6 +4,9 @@
 #include <inttypes.h>
 #include "zipparser.h"
 
+#define EOCD_Signature 0x06054b50;
+#define CDFH_Signature 0x02014b50;
+
 struct EOCD {
 	uint16_t diskNumber;
 	uint16_t startDiskNumber;
@@ -32,8 +35,7 @@ struct CentralDirectoryFileHeader
     uint16_t diskNumber;
     uint16_t internalFileAttributes;
     uint32_t externalFileAttributes;
-    uint32_t localFileHeaderOffset;
- 
+    uint32_t localFileHeaderOffset; 
 } __attribute__((packed));
 
 struct LocalFileHeader
@@ -48,8 +50,7 @@ struct LocalFileHeader
     uint32_t compressedSize;
     uint32_t uncompressedSize;
     uint16_t filenameLength;
-    uint16_t extraFieldLength;
- 
+    uint16_t extraFieldLength; 
 } __attribute__((packed));
 
 struct ZIP_File getZipFile(const char* file_name, int startPosition) {
@@ -57,7 +58,8 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 	if(file == NULL) {
 	}
 	else
-	{/*
+	{
+		/*
 		char * buffer = (char*)malloc(sizeof(char));
 		if(buffer == NULL){
 			printf("Error malloc");
@@ -69,68 +71,82 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 			printf("%s", buffer);
 			fseek(file, -2*sizeof(buffer), SEEK_CUR);
 		}
-	*/	
+		*/
+
 		uint64_t file_size = getFileSize(file_name);
 		uint32_t signature = 0; 
 
 		// Ищем сигнатуру EOCD
+		// сначала делаем смещение в конец файла,
+		// недоходя до конца на размер signature
 		fseek(file, -sizeof(signature), SEEK_END);
 
-		for (uint64_t offset = file_size - sizeof(signature); offset != 0; --offset) {
-			
-		    	// Считываем четыре байта сигнатуры
+		for (uint64_t offset = file_size - sizeof(signature); offset != 0; --offset) {			
+		    // Считываем четыре байта сигнатуры
 			fread((char *)&signature, sizeof(signature), 1, file);
-			//is.read((char *) &signature, sizeof(signature));
-			if (0x06054b50 == signature) {
+			
+			if (EOCD_Signature == signature) {
 				// Есть контакт!
-				printf("Нашли.");
+				printf("Нашли сигнатуру EOCD.");
 				struct EOCD eocd;
+				
+				// Возвращение позиции курсора на точку считывания 
+				// структуры EOCD
 				fseek(file, -1 * (sizeof(signature)), SEEK_CUR);
-
-				fread((char*)&eocd, sizeof(eocd), 1, file);
-	printf("eocd.commentLength = %d", eocd.commentLength);			
+				
+				// Считываем структуру EOCD
+				fread((char *)&eocd, sizeof(eocd), 1, file);
+				
+				printf("eocd.commentLength = %d", eocd.commentLength);			
+				
 				if(eocd.commentLength) {
-					// Длина комментария
+					// Массив для комментария
 					uint8_t comment[eocd.commentLength + 1];
-					for(int i = 0; i < eocd.commentLength + 1; i++) {
-						comment[i] = 0;
-					}
+
+					// Инициализация массива
+					initIntArray(comment, eocd.commentLength + 1);
+
 					fread((char *)comment, eocd.commentLength, 1, file);
 					comment[eocd.commentLength] = 0; 
-/*					for(int i = 0; i < eocd.commentLength + 1; i++) {
-		*/				printf("%s, это комментарии\n", (char *)comment);
-		/*			}*/
+					printf("%s, это комментарии\n", (char *)comment);
 				}
+
 				if(eocd.centralDirectoryOffset) {
-					// Смещение первой записи
+					// Смещение курсора на позицию первой записи
 					fseek(file, eocd.centralDirectoryOffset, SEEK_SET);
 					struct CentralDirectoryFileHeader cdfh;
-					fread((char*)&cdfh, sizeof(cdfh), 1, file);
-					if(0x02014b50 != cdfh.signature) {
+					// Чтение структуры CentralDirectoryFileHeader
+					fread((char *)&cdfh, sizeof(cdfh), 1, file);
+
+					if(CDFH_Signature != cdfh.signature) {
 						// Ошибка
-						printf("Ошибка определения cdfh.signature (получили: %u вместо: 0x02014b50 )", cdfh.signature);
+						printf("Ошибка определения cdfh.signature (получили: %u вместо: " CDFH_Signature " )", cdfh.signature);
 						break;
 					}
+
 					// Считываем имя файла / папки
 					if(cdfh.filenameLength) {
 						uint8_t filename[cdfh.filenameLength + 1];
-						for(int i = 0; i < cdfh.filenameLength + 1; i++) {
-							filename[i] = 0;
-						}
+						
+						// Инициализация массива
+						initIntArray(filename, cdfh.filenameLength + 1);
 
+						// Попытка считать название файла
 						fread((char *)filename, cdfh.filenameLength, 1, file);
+						
+						// Заполнение последнего элемента массива
 						filename[cdfh.filenameLength] = 0;
-printf("%s,", (char *)filename);
-
+						
+						printf("%s,", (char *)filename);
 					}
 				}
 				break;
 			}
 			else
 			{
+				// Если подпись не найдена смещаемся на один байт
+				// от предыдущей позиции в сторону начала файла
 				fseek(file, -1 * (sizeof(signature) + 1), SEEK_CUR);
-//				printf("%lu - сдвинулись\n", cur_position);
-				//printf("%ud - Сдвинулись на единицу.", signature);
 			}
 		}
 
@@ -141,9 +157,12 @@ printf("%s,", (char *)filename);
 	return result;
 }
 
+// Определение размера файла
 uint64_t getFileSize(const char* file_name) {
 	uint64_t file_size = 0;
+
 	FILE* file = fopen(file_name, "rb");
+	
 	if(file == NULL) {
 		file_size = -1;
 	}
@@ -154,4 +173,11 @@ uint64_t getFileSize(const char* file_name) {
 		fclose(file);
 	}
 	return file_size;
+}
+
+// Инициализация массива
+void initIntArray(uint8_t* arr, int length) {
+	for (int i = 0; i < length; ++i) {
+		arr[i] = 0;
+	}
 }
