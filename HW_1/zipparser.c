@@ -4,40 +4,89 @@
 #include <inttypes.h>
 #include "zipparser.h"
 
+// end of central dir signature
 #define EOCD_Signature 0x06054b50
+// central file header signature
 #define CDFH_Signature 0x02014b50
 
+// End of central directory record
 struct EOCD {
+	// end of central dir signature -> 4 bytes  (0x06054b50)
+	uint32_t signature;
+	// number of this disk -> 2 bytes
 	uint16_t diskNumber;
+	// number of the disk with the
+	// start of the central directory -> 2 bytes
 	uint16_t startDiskNumber;
+	// total number of entries in the
+	// central directory on this disk -> 2 bytes
 	uint16_t numberCentralDirectoryRecord;
+	// total number of entries in
+	// the central directory -> 2 bytes
 	uint16_t totalCehtralDirectoryRecord;
+	// size of the central directory -> 4 bytes
 	uint32_t sizeOfCentralDirectory;
+	// offset of start of central
+	// directory with respect to
+	// the starting disk number -> 4 bytes
 	uint32_t centralDirectoryOffset;
+	// .ZIP file comment length -> 2 bytes
 	uint16_t commentLength;
+	// .ZIP file comment -> (variable size)
 } __attribute__((packed));
 
+/*
+	[central directory header 1]
+	.
+	.
+	.
+	[central directory header n]
+	[digital signature]
+
+	File header:
+*/
 struct CentralDirectoryFileHeader
 {
+	// central file header signature -> 4 bytes  (0x02014b50)
     uint32_t signature;
+	// version made by -> 2 bytes	
     uint16_t versionMadeBy;
+	// version needed to extract -> 2 bytes	
     uint16_t versionToExtract;
+	// general purpose bit flag -> 2 bytes
     uint16_t generalPurposeBitFlag;
+	// compression method -> 2 bytes
     uint16_t compressionMethod;
+	// last mod file time -> 2 bytes
     uint16_t modificationTime;
+	// last mod file date -> 2 bytes
     uint16_t modificationDate;
+	// crc - 32 -> 4 bytes
     uint32_t crc32;
+	// compressed size -> 4 bytes
     uint32_t compressedSize;
+	// uncompressed size -> 4 bytes
     uint32_t uncompressedSize;
+	// file name length -> 2 bytes
     uint16_t filenameLength;
+	// extra field length -> 2 bytes
     uint16_t extraFieldLength;
+	// file comment length -> 2 bytes
     uint16_t fileCommentLength;
+	// disk number start -> 2 bytes
     uint16_t diskNumber;
+	// internal file attributes -> 2 bytes
     uint16_t internalFileAttributes;
+	// external file attributes -> 4 bytes
     uint32_t externalFileAttributes;
+	// relative offset of local header -> 4 bytes
     uint32_t localFileHeaderOffset; 
+	// file name (variable size)
+	// extra field(variable size)
+	// file comment(variable size)
 } __attribute__((packed));
 
+// 
 struct LocalFileHeader
 {
     uint32_t signature;
@@ -79,9 +128,9 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 		// Ищем сигнатуру EOCD
 		// сначала делаем смещение в конец файла,
 		// недоходя до конца на размер signature
-		fseek(file, -sizeof(signature), SEEK_END);
+		fseek(file, -sizeof(EOCD), SEEK_END);
 
-		for (uint64_t offset = file_size - sizeof(signature); offset != 0; --offset) {			
+		for (uint64_t offset = file_size - sizeof(signature); offset != 0; --offset) {
 		    // Считываем четыре байта сигнатуры
 			fread((char *)&signature, sizeof(signature), 1, file);
 			
