@@ -103,19 +103,23 @@ struct LocalFileHeader
 } __attribute__((packed));
 
 struct ZIP_File getZipFile(const char* file_name, int startPosition) {
+
 	FILE* file = fopen(file_name, "rb");
-	if(file == NULL) {
+
+	if (file == NULL) {
 	}
 	else
 	{
 		/*
 		char * buffer = (char*)malloc(sizeof(char));
-		if(buffer == NULL){
+
+		if (buffer == NULL){
 			printf("Error malloc");
 		}
+
 		fseek(file, -sizeof(buffer), SEEK_END);
 
-		for(int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 1000; i++) {
 			fread(buffer, sizeof(buffer), 1, file);
 			printf("%s", buffer);
 			fseek(file, -2*sizeof(buffer), SEEK_CUR);
@@ -146,9 +150,9 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 				// Считываем структуру EOCD
 				fread((char *)&eocd, sizeof(eocd), 1, file);
 				
-				printf("eocd.commentLength = %d\n", eocd.commentLength);			
+				printf("eocd.commentLength: %d\n", eocd.commentLength);			
 				
-				if(eocd.commentLength) {
+				if (eocd.commentLength) {
 					// Массив для комментария
 					uint8_t comment[eocd.commentLength + 1];
 
@@ -162,20 +166,23 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 
 				struct CentralDirectoryFileHeader cdfh;
 				
-				if(eocd.centralDirectoryOffset) {
-					int seek[3] = {SEEK_CUR, SEEK_SET, SEEK_END};
-					for(int i = 0; i < 3; ++i){
-					// Смещение курсора на позицию первой записи
-					fseek(file, eocd.centralDirectoryOffset, seek[i]);
-				
-					// Чтение структуры CentralDirectoryFileHeader
-					fread((char *)&cdfh, sizeof(cdfh), 1, file);
+				if (eocd.centralDirectoryOffset) {
 
-					if(CDFH_Signature != cdfh.signature) {
-						// Ошибка
-						printf("Ошибка определения cdfh.signature (получили: 0x%.8X вместо: 0x%.8X)\n", cdfh.signature, CDFH_Signature);
-					//	break;
-					}
+					int seek[3] = { SEEK_CUR, SEEK_SET, SEEK_END };
+
+					for (int i = 0; i < 3; ++i) {
+						// Смещение курсора на позицию первой записи
+						fseek(file, eocd.centralDirectoryOffset, seek[i]);
+				
+						// Чтение структуры CentralDirectoryFileHeader
+						fread((char *)&cdfh, sizeof(cdfh), 1, file);
+
+						if(CDFH_Signature != cdfh.signature) {
+							// Ошибка
+							printf("Ошибка определения cdfh.signature (получили: 0x%.8X вместо: 0x%.8X)\n",
+								cdfh.signature, CDFH_Signature);
+							// break;
+						}
 					}
 					// Считываем имя файла / папки
 					if(cdfh.filenameLength) {
@@ -216,11 +223,12 @@ uint64_t getFileSize(const char* file_name) {
 
 	FILE* file = fopen(file_name, "rb");
 	
-	if(file == NULL) {
+	if (file == NULL) {
 		file_size = -1;
 	}
-	else {
-		while(getc(file) != EOF) {
+	else
+	{
+		while (getc(file) != EOF) {
 			++file_size;
 		}
 		fclose(file);
