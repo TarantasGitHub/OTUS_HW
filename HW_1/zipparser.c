@@ -4,8 +4,8 @@
 #include <inttypes.h>
 #include "zipparser.h"
 
-#define EOCD_Signature 0x06054b50;
-#define CDFH_Signature 0x02014b50;
+#define EOCD_Signature 0x06054b50
+#define CDFH_Signature 0x02014b50
 
 struct EOCD {
 	uint16_t diskNumber;
@@ -120,7 +120,7 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 
 					if(CDFH_Signature != cdfh.signature) {
 						// Ошибка
-						printf("Ошибка определения cdfh.signature (получили: %u вместо: " CDFH_Signature " )", cdfh.signature);
+						printf("Ошибка определения cdfh.signature (получили: 0x%.8X вместо: 0x%.8X)\n", cdfh.signature, CDFH_Signature);
 						break;
 					}
 
