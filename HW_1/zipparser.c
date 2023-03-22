@@ -136,7 +136,7 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 			
 			if (EOCD_Signature == signature) {
 				// Есть контакт!
-				printf("Нашли сигнатуру EOCD.");
+				printf("Нашли сигнатуру EOCD.\n");
 				struct EOCD eocd;
 				
 				// Возвращение позиции курсора на точку считывания 
@@ -146,7 +146,7 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 				// Считываем структуру EOCD
 				fread((char *)&eocd, sizeof(eocd), 1, file);
 				
-				printf("eocd.commentLength = %d", eocd.commentLength);			
+				printf("eocd.commentLength = %d\n", eocd.commentLength);			
 				
 				if(eocd.commentLength) {
 					// Массив для комментария
@@ -160,19 +160,23 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 					printf("%s, это комментарии\n", (char *)comment);
 				}
 
+				struct CentralDirectoryFileHeader cdfh;
+				
 				if(eocd.centralDirectoryOffset) {
+					int seek[3] = {SEEK_CUR, SEEK_SET, SEEK_END};
+					for(int i = 0; i < 3; ++i){
 					// Смещение курсора на позицию первой записи
-					fseek(file, eocd.centralDirectoryOffset, SEEK_SET);
-					struct CentralDirectoryFileHeader cdfh;
+					fseek(file, eocd.centralDirectoryOffset, seek[i]);
+				
 					// Чтение структуры CentralDirectoryFileHeader
 					fread((char *)&cdfh, sizeof(cdfh), 1, file);
 
 					if(CDFH_Signature != cdfh.signature) {
 						// Ошибка
 						printf("Ошибка определения cdfh.signature (получили: 0x%.8X вместо: 0x%.8X)\n", cdfh.signature, CDFH_Signature);
-						break;
+					//	break;
 					}
-
+					}
 					// Считываем имя файла / папки
 					if(cdfh.filenameLength) {
 						uint8_t filename[cdfh.filenameLength + 1];
