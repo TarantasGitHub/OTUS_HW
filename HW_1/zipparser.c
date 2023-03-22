@@ -128,7 +128,7 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 		// Ищем сигнатуру EOCD
 		// сначала делаем смещение в конец файла,
 		// недоходя до конца на размер signature
-		fseek(file, -sizeof(EOCD), SEEK_END);
+		fseek(file, -sizeof(struct EOCD), SEEK_END);
 
 		for (uint64_t offset = file_size - sizeof(signature); offset != 0; --offset) {
 		    // Считываем четыре байта сигнатуры
