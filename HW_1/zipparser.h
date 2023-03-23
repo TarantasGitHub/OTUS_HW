@@ -8,7 +8,7 @@ struct ZIP_File {
 	uint32_t endPosition;
 };
 
-struct ZIP_File getZipFile(const char* file_name, int startPosition);
+struct ZIP_File getZipFile(const char* file_name, long int startPosition);
 
 uint64_t getFileSize(const char* file_name);
 

@@ -3,11 +3,14 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include "zipparser.h"
+#include "binaryitem.h"
 
 // end of central dir signature
 #define EOCD_Signature 0x06054b50
 // central file header signature
 #define CDFH_Signature 0x02014b50
+// local file header signature
+#define LFH_Signature 0x04034b50
 
 // End of central directory record
 struct EOCD {
@@ -102,7 +105,7 @@ struct LocalFileHeader
     uint16_t extraFieldLength; 
 } __attribute__((packed));
 
-struct ZIP_File getZipFile(const char* file_name, int startPosition) {
+struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 
 	FILE* file = fopen(file_name, "rb");
 
@@ -110,6 +113,54 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 	}
 	else
 	{
+		int c = 0, counter = 0;
+		uint32_t lfh_signature = 0;
+ 		startPosition-=sizeof(lfh_signature);
+	        fseek(file, startPosition, SEEK_SET);
+		printf("Начали поиск начала ZIP файла, (%ld)\n", startPosition);
+
+		while ((c = getc(file)) != EOF) {
+			for (int i = 1; i < (int)sizeof(lfh_signature); ++i) {
+				((char *)&lfh_signature)[i-1] = ((char *)&lfh_signature)[i];
+			}
+			((char *)&lfh_signature)[3] = c;
+			++startPosition;
+			if (counter++ < 100) {
+				printf("%ld --+-- LFH_Signature:0x%.8X --- 0x%.8X\n", startPosition, LFH_Signature, lfh_signature);
+			}
+
+			if (LFH_Signature == lfh_signature) {
+				// Возвращаемся в начало ZIP
+				fseek(file, -sizeof(lfh_signature), SEEK_CUR);
+				startPosition-=sizeof(lfh_signature);
+				printf("Нашли начало ZIP файла, (%ld)\n", startPosition);
+				break;
+			}
+		}
+		struct TempReader tr = getTRReader(sizeof(uint32_t));
+
+		fseek(file, 0L, SEEK_SET);
+		int _c = 0;
+		uint32_t result = 0;
+		uint32_t lfh_offset = 0;
+		while ((_c = getc(file)) != EOF) {
+			addTRItem(&tr, _c);
+			getTRValue(&tr, (char *)&result);
+			lfh_offset++;
+		if (lfh_offset > 30400 && lfh_offset < 30600) {
+			printf("%u -- LFH_Signature:0x%.8X --- 0x%.8X\n", lfh_offset, LFH_Signature, result);
+		}
+
+
+			if (LFH_Signature == result) {
+				lfh_offset-=sizeof(result);
+				printf("Нашли начало ZIP файла с помощью структуры, (%u)\n", lfh_offset);
+				break;
+			}
+
+			//printf("0x%.8X\n", result);
+		}
+
 		/*
 		char * buffer = (char*)malloc(sizeof(char));
 
@@ -149,6 +200,14 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 				
 				// Считываем структуру EOCD
 				fread((char *)&eocd, sizeof(eocd), 1, file);
+
+				if (EOCD_Signature == eocd.signature) {
+					printf("EOCD считался правильно.\n");
+				}
+				else
+				{
+					printf("EOCD считался не правильно.\n");
+				}
 				
 				printf("eocd.commentLength: %d\n", eocd.commentLength);			
 				
@@ -170,9 +229,13 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 
 					int seek[3] = { SEEK_CUR, SEEK_SET, SEEK_END };
 
-					for (int i = 0; i < 3; ++i) {
+					for (int i = 1; i < 2; ++i) {
 						// Смещение курсора на позицию первой записи
-						fseek(file, eocd.centralDirectoryOffset, seek[i]);
+						long int offset = (seek[i] == SEEK_END ? (-1) : 1) * (long int)eocd.centralDirectoryOffset;
+						offset+=startPosition;
+						offset-=111;
+						printf("SEEK: %d, offset: %ld\n", seek[i], offset);
+						fseek(file, offset, seek[i]);
 				
 						// Чтение структуры CentralDirectoryFileHeader
 						fread((char *)&cdfh, sizeof(cdfh), 1, file);
@@ -184,6 +247,41 @@ struct ZIP_File getZipFile(const char* file_name, int startPosition) {
 							// break;
 						}
 					}
+
+					uint32_t sign = 0;
+					uint32_t sign_op = 0;
+
+					int c;
+					uint32_t index = 0;
+
+					fseek(file, 0L, SEEK_CUR);
+					// rewind(file);
+
+					while ((c = getc(file)) != EOF) {
+						for (int i = 1; i < 4; ++i) {
+							((char *)&sign)[i-1] = ((char *)&sign)[i];
+							((char *)&sign_op)[4-i] = ((char *)&sign_op)[4-(i+1)];
+
+						}
+						((char *)&sign)[3] = c;
+						((char *)&sign_op)[0] = c;
+
+						if (CDFH_Signature == sign || CDFH_Signature == sign_op) {
+						printf("%d, CDFH_Signature is 0x%.8x, sign is 0x%.8X, sign_op is 0x%.8X \n", index, CDFH_Signature, sign, sign_op);
+						}
+						else if (EOCD_Signature == sign || EOCD_Signature == sign_op) {
+ 							printf("EOCD_Signature in %d\n", index);
+						}
+						else
+						{
+							if (index < 40) {
+								printf("0x%.8X --- 0x%.8X\n", sign, sign_op);
+							}
+						}
+						++index;
+					}
+					printf("Закончили на %u итерации\n", index);
+
 					// Считываем имя файла / папки
 					if(cdfh.filenameLength) {
 						uint8_t filename[cdfh.filenameLength + 1];
