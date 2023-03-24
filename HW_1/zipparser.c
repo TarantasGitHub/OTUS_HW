@@ -140,25 +140,36 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 		struct TempReader tr = getTRReader(sizeof(uint32_t));
 
 		fseek(file, 0L, SEEK_SET);
-		int _c = 0;
+		int _c = 0, lfh_notfound = 1, cdfh_notfound = 1;
 		uint32_t result = 0;
-		uint32_t lfh_offset = 0;
+		uint32_t lfh_offset = 0, cdfh_offset = 0;
 		while ((_c = getc(file)) != EOF) {
 			addTRItem(&tr, _c);
 			getTRValue(&tr, (char *)&result);
-			lfh_offset++;
-		if (lfh_offset > 30400 && lfh_offset < 30600) {
+			if (lfh_notfound) {
+				++lfh_offset;
+			}
+			if (cdfh_notfound) {
+				++cdfh_offset;
+			}
+		if (lfh_notfound && lfh_offset > 30400 && lfh_offset < 30600) {
 			printf("%u -- LFH_Signature:0x%.8X --- 0x%.8X\n", lfh_offset, LFH_Signature, result);
 		}
 
 
-			if (LFH_Signature == result) {
+			if (lfh_notfound && LFH_Signature == result) {
 				lfh_offset-=sizeof(result);
+				lfh_notfound = 0;
 				printf("Нашли начало ZIP файла с помощью структуры, (%u)\n", lfh_offset);
+			} else	if(cdfh_notfound && CDFH_Signature == result) {
+				cdfh_offset-=sizeof(result);
+				cdfh_notfound = 0;
+				printf("Нашли первый CDFH заголовок с помощью структуры, (%u)\n", cdfh_offset);
+			}
+			if (!lfh_notfound && !cdfh_notfound) {
 				break;
 			}
 
-			//printf("0x%.8X\n", result);
 		}
 
 		/*
@@ -235,7 +246,7 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 						offset+=startPosition;
 						offset-=111;
 						printf("SEEK: %d, offset: %ld\n", seek[i], offset);
-						fseek(file, offset, seek[i]);
+						fseek(file, cdfh_offset /*-offset*/, seek[i]);
 				
 						// Чтение структуры CentralDirectoryFileHeader
 						fread((char *)&cdfh, sizeof(cdfh), 1, file);
@@ -245,7 +256,11 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 							printf("Ошибка определения cdfh.signature (получили: 0x%.8X вместо: 0x%.8X)\n",
 								cdfh.signature, CDFH_Signature);
 							// break;
+						} else {
+							printf("Определили cdfh.signature (получили: 0x%.8X вместо: 0x%.8X)\n",
+								cdfh.signature, CDFH_Signature);
 						}
+							
 					}
 
 					uint32_t sign = 0;
