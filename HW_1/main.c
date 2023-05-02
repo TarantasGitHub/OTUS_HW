@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
 		if((file = fopen(argv[1], "rb")) != NULL)
 		{
-			printf("Файл \"%s\" найден. Размер %llu \n", argv[1], getFileSize(argv[1]));
+			printf("Файл \"%s\" найден. Размер %lu \n", argv[1], getFileSize(argv[1]));
 			
 			int c;
 			int index = 0;
