@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <locale.h>       //  здесь "живёт" setlocale(LC_ALL, "rus");
 #include "zipparser.h"
 
 int main(int argc, char *argv[])
 {
+	setlocale(LC_ALL, "rus");
+
 	if(argc > 1)
 	{
 		for(int i = 0; i < argc; i++)
@@ -14,7 +17,7 @@ int main(int argc, char *argv[])
 
 		if((file = fopen(argv[1], "rb")) != NULL)
 		{
-			printf("Файл \"%s\" найден. Размер %ld \n", argv[1], getFileSize(argv[1]));
+			printf("Файл \"%s\" найден. Размер %llu \n", argv[1], getFileSize(argv[1]));
 			
 			int c;
 			int index = 0;
