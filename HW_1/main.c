@@ -17,7 +17,11 @@ int main(int argc, char *argv[])
 
 		if((file = fopen(argv[1], "rb")) != NULL)
 		{
+#ifdef _WIN32
+			printf("Файл \"%s\" найден. Размер %llu \n", argv[1], getFileSize(argv[1]));
+#else
 			printf("Файл \"%s\" найден. Размер %lu \n", argv[1], getFileSize(argv[1]));
+#endif
 			
 			int c;
 			int index = 0;
