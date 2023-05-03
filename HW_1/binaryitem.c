@@ -32,7 +32,7 @@ void addTRItem(struct TempReader* reader, int val) {
 	unsigned int wer = 0;
 	getTRValue(reader, (char*)&wer);
 
-	//	printf("Ğ’ÑÑ‚Ğ°Ğ²ĞºĞ° Ğ·Ğ½Ğ°Ñ‡ĞµĞ½Ğ¸Ñ 0x%x Ğ² Ğ¿Ğ¾Ğ·Ğ¸Ñ†Ğ¸Ñ %d (%p -- 0x%x -- 0x%X)",
+	//	printf("Âñòàâêà çíà÷åíèÿ 0x%x â ïîçèöèş %d (%p -- 0x%x -- 0x%X)",
 	//		       	val, reader->index, reader->container+reader->index, *(reader->container+reader->index), wer);
 }
 

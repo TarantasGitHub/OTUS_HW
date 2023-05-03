@@ -1,16 +1,24 @@
 #include <stdio.h>
-#include <locale.h>       //  Р·РґРµСЃСЊ "Р¶РёРІС‘С‚" setlocale(LC_ALL, "rus");
 #include "zipparser.h"
+
+#ifdef _WIN32
+	//#include <locale.h>       //  здесь "живёт" setlocale(LC_ALL, "rus");
+	#include <Windows.h>
+#endif
 
 int main(int argc, char *argv[])
 {
-	setlocale(LC_ALL, "rus");
+#ifdef _WIN32
+	//setlocale(LC_ALL, "rus");
+	SetConsoleCP(1251); //установка кодовой страницы win-cp 1251 в поток ввода
+	SetConsoleOutputCP(1251); //установка кодовой страницы win-cp 1251 в поток вывода
+#endif
 
 	if(argc > 1)
 	{
 		for(int i = 0; i < argc; i++)
 		{
-			printf("РџР°СЂР°РјРµС‚СЂ в„– %d %s\n", i, argv[i]);
+			printf("Параметр № %d %s\n", i, argv[i]);
 		}
 
 		FILE *file;
@@ -18,9 +26,9 @@ int main(int argc, char *argv[])
 		if((file = fopen(argv[1], "rb")) != NULL)
 		{
 #ifdef _WIN32
-			printf("Р¤Р°Р№Р» \"%s\" РЅР°Р№РґРµРЅ. Р Р°Р·РјРµСЂ %llu \n", argv[1], getFileSize(argv[1]));
+			printf("Файл \"%s\" найден. Размер %llu \n", argv[1], getFileSize(argv[1]));
 #else
-			printf("Р¤Р°Р№Р» \"%s\" РЅР°Р№РґРµРЅ. Р Р°Р·РјРµСЂ %lu \n", argv[1], getFileSize(argv[1]));
+			printf("Файл \"%s\" найден. Размер %lu \n", argv[1], getFileSize(argv[1]));
 #endif
 			
 			int c;
@@ -32,7 +40,7 @@ int main(int argc, char *argv[])
 			{
 				if(jpgIsEnd)
 				{
-					printf("Р¤Р°Р№Р» СЃРѕРґРµСЂР¶РёС‚ С‡С‚Рѕ-С‚Рѕ Р±РѕР»СЊС€РµРµ, С‡РµРј РѕРґРёРЅ jpg\n");
+					printf("Файл содержит что-то большее, чем один jpg\n");
 					struct ZIP_File zip_file = getZipFile(argv[1], index);
 					break;
 				}
@@ -51,13 +59,13 @@ int main(int argc, char *argv[])
 
 				if(prevChar == 0XFF && c == 0XD9)
 				{
-					printf("\nРљРѕРЅРµС† РґР°РЅРЅС‹С… JPG С„Р°Р№Р»Р°, СЃС‚СЂРѕРєР° %d \n", index);
+					printf("\nКонец данных JPG файла, строка %d \n", index);
 					jpgIsEnd = 1;
 					//break;
 				}
 				else if(prevChar == 0XFF && c == 0XD8)
 				{
-					printf("Р¤Р°Р№Р» РЅР°С‡РёРЅР°РµС‚СЃСЏ РєР°Рє JPG\n");
+					printf("Файл начинается как JPG\n");
 				}
 				
 				prevChar = c;
@@ -66,7 +74,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			printf("Р¤Р°Р№Р»  \"%s\" РЅРµ РЅР°Р№РґРµРЅ.\n", argv[1]);
+			printf("Файл  \"%s\" не найден.\n", argv[1]);
 		}
 	}
 

@@ -36,7 +36,11 @@ struct EOCD {
 	// .ZIP file comment length -> 2 bytes
 	uint16_t commentLength;
 	// .ZIP file comment -> (variable size)
-} /*__attribute__((packed))*/;
+}
+#ifdef __unix__
+	__attribute__((packed))
+#endif
+		;
 
 /*
 	[central directory header 1]
@@ -87,7 +91,11 @@ struct CentralDirectoryFileHeader
 	// file name (variable size)
 	// extra field(variable size)
 	// file comment(variable size)
-} /*__attribute__((packed))*/;
+}
+#ifdef __unix__
+	__attribute__((packed))
+#endif
+		;
 
 // 
 struct LocalFileHeader
@@ -103,7 +111,11 @@ struct LocalFileHeader
 	uint32_t uncompressedSize;
 	uint16_t filenameLength;
 	uint16_t extraFieldLength;
-} /*__attribute__((packed))*/;
+}
+#ifdef __unix__
+	__attribute__((packed))
+#endif
+		;
 
 struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 
@@ -117,7 +129,7 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 		uint32_t lfh_signature = 0;
 		startPosition -= sizeof(lfh_signature);
 		fseek(file, startPosition, SEEK_SET);
-		printf("РќР°С‡Р°Р»Рё РїРѕРёСЃРє РЅР°С‡Р°Р»Р° ZIP С„Р°Р№Р»Р°, (%ld)\n", startPosition);
+		printf("Начали поиск начала ZIP файла, (%ld)\n", startPosition);
 
 		while ((c = getc(file)) != EOF) {
 			for (int i = 1; i < (int)sizeof(lfh_signature); ++i) {
@@ -130,10 +142,10 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 			}
 
 			if (LFH_Signature == lfh_signature) {
-				// Р’РѕР·РІСЂР°С‰Р°РµРјСЃСЏ РІ РЅР°С‡Р°Р»Рѕ ZIP
+				// Возвращаемся в начало ZIP
 				fseek(file, (-1) * sizeof(lfh_signature), SEEK_CUR);
 				startPosition -= sizeof(lfh_signature);
-				printf("РќР°С€Р»Рё РЅР°С‡Р°Р»Рѕ ZIP С„Р°Р№Р»Р°, (%ld)\n", startPosition);
+				printf("Нашли начало ZIP файла, (%ld)\n", startPosition);
 				break;
 			}
 		}
@@ -160,12 +172,12 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 			if (lfh_notfound && LFH_Signature == result) {
 				lfh_offset -= sizeof(result);
 				lfh_notfound = 0;
-				printf("РќР°С€Р»Рё РЅР°С‡Р°Р»Рѕ ZIP С„Р°Р№Р»Р° СЃ РїРѕРјРѕС‰СЊСЋ СЃС‚СЂСѓРєС‚СѓСЂС‹, (%u)\n", lfh_offset);
+				printf("Нашли начало ZIP файла с помощью структуры, (%u)\n", lfh_offset);
 			}
 			else	if (cdfh_notfound && CDFH_Signature == result) {
 				cdfh_offset -= sizeof(result);
 				cdfh_notfound = 0;
-				printf("РќР°С€Р»Рё РїРµСЂРІС‹Р№ CDFH Р·Р°РіРѕР»РѕРІРѕРє СЃ РїРѕРјРѕС‰СЊСЋ СЃС‚СЂСѓРєС‚СѓСЂС‹, (%u)\n", cdfh_offset);
+				printf("Нашли первый CDFH заголовок с помощью структуры, (%u)\n", cdfh_offset);
 			}
 			if (!lfh_notfound && !cdfh_notfound) {
 				break;
@@ -192,47 +204,47 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 		uint64_t file_size = getFileSize(file_name);
 		uint32_t signature = 0;
 
-		// РС‰РµРј СЃРёРіРЅР°С‚СѓСЂСѓ EOCD
-		// СЃРЅР°С‡Р°Р»Р° РґРµР»Р°РµРј СЃРјРµС‰РµРЅРёРµ РІ РєРѕРЅРµС† С„Р°Р№Р»Р°,
-		// РЅРµРґРѕС…РѕРґСЏ РґРѕ РєРѕРЅС†Р° РЅР° СЂР°Р·РјРµСЂ signature
+		// Ищем сигнатуру EOCD
+		// сначала делаем смещение в конец файла,
+		// недоходя до конца на размер signature
 		fseek(file, (-1) * sizeof(struct EOCD), SEEK_END);
 
 		for (uint64_t offset = file_size - sizeof(signature); offset != 0; --offset) {
-			// РЎС‡РёС‚С‹РІР°РµРј С‡РµС‚С‹СЂРµ Р±Р°Р№С‚Р° СЃРёРіРЅР°С‚СѓСЂС‹
+			// Считываем четыре байта сигнатуры
 			fread((char*)&signature, sizeof(signature), 1, file);
 
 			if (EOCD_Signature == signature) {
-				// Р•СЃС‚СЊ РєРѕРЅС‚Р°РєС‚!
-				printf("РќР°С€Р»Рё СЃРёРіРЅР°С‚СѓСЂСѓ EOCD.\n");
+				// Есть контакт!
+				printf("Нашли сигнатуру EOCD.\n");
 				struct EOCD eocd;
 
-				// Р’РѕР·РІСЂР°С‰РµРЅРёРµ РїРѕР·РёС†РёРё РєСѓСЂСЃРѕСЂР° РЅР° С‚РѕС‡РєСѓ СЃС‡РёС‚С‹РІР°РЅРёСЏ 
-				// СЃС‚СЂСѓРєС‚СѓСЂС‹ EOCD
+				// Возвращение позиции курсора на точку считывания 
+				// структуры EOCD
 				fseek(file, -1 * (sizeof(signature)), SEEK_CUR);
 
-				// РЎС‡РёС‚С‹РІР°РµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ EOCD
+				// Считываем структуру EOCD
 				fread((char*)&eocd, sizeof(eocd), 1, file);
 
 				if (EOCD_Signature == eocd.signature) {
-					printf("EOCD СЃС‡РёС‚Р°Р»СЃСЏ РїСЂР°РІРёР»СЊРЅРѕ.\n");
+					printf("EOCD считался правильно.\n");
 				}
 				else
 				{
-					printf("EOCD СЃС‡РёС‚Р°Р»СЃСЏ РЅРµ РїСЂР°РІРёР»СЊРЅРѕ.\n");
+					printf("EOCD считался не правильно.\n");
 				}
 
 				printf("eocd.commentLength: %d\n", eocd.commentLength);
 
 				if (eocd.commentLength) {
-					// РњР°СЃСЃРёРІ РґР»СЏ РєРѕРјРјРµРЅС‚Р°СЂРёСЏ
+					// Массив для комментария
 					uint8_t* comment = malloc((eocd.commentLength + 1) * sizeof(uint8_t));
 					if (comment != NULL) {
-						// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјР°СЃСЃРёРІР°
+						// Инициализация массива
 						initIntArray(comment, eocd.commentLength + 1);
 
 						fread((char*)comment, eocd.commentLength, 1, file);
 						comment[eocd.commentLength] = 0;
-						printf("%s, СЌС‚Рѕ РєРѕРјРјРµРЅС‚Р°СЂРёРё\n", (char*)comment);
+						printf("%s, это комментарии\n", (char*)comment);
 					}
 				}
 
@@ -243,24 +255,24 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 					int seek[3] = { SEEK_CUR, SEEK_SET, SEEK_END };
 
 					for (int i = 1; i < 2; ++i) {
-						// РЎРјРµС‰РµРЅРёРµ РєСѓСЂСЃРѕСЂР° РЅР° РїРѕР·РёС†РёСЋ РїРµСЂРІРѕР№ Р·Р°РїРёСЃРё
+						// Смещение курсора на позицию первой записи
 						long int offset = (seek[i] == SEEK_END ? (-1) : 1) * (long int)eocd.centralDirectoryOffset;
 						offset += startPosition;
 						offset -= 111;
 						printf("SEEK: %d, offset: %ld\n", seek[i], offset);
 						fseek(file, cdfh_offset /*-offset*/, seek[i]);
 
-						// Р§С‚РµРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ CentralDirectoryFileHeader
+						// Чтение структуры CentralDirectoryFileHeader
 						fread((char*)&cdfh, sizeof(cdfh), 1, file);
 
 						if (CDFH_Signature != cdfh.signature) {
-							// РћС€РёР±РєР°
-							printf("РћС€РёР±РєР° РѕРїСЂРµРґРµР»РµРЅРёСЏ cdfh.signature (РїРѕР»СѓС‡РёР»Рё: 0x%.8X РІРјРµСЃС‚Рѕ: 0x%.8X)\n",
+							// Ошибка
+							printf("Ошибка определения cdfh.signature (получили: 0x%.8X вместо: 0x%.8X)\n",
 								cdfh.signature, CDFH_Signature);
 							// break;
 						}
 						else {
-							printf("РћРїСЂРµРґРµР»РёР»Рё cdfh.signature (РїРѕР»СѓС‡РёР»Рё: 0x%.8X РІРјРµСЃС‚Рѕ: 0x%.8X)\n",
+							printf("Определили cdfh.signature (получили: 0x%.8X вместо: 0x%.8X)\n",
 								cdfh.signature, CDFH_Signature);
 						}
 
@@ -298,19 +310,19 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 						}
 						++index;
 					}
-					printf("Р—Р°РєРѕРЅС‡РёР»Рё РЅР° %u РёС‚РµСЂР°С†РёРё\n", index);
+					printf("Закончили на %u итерации\n", index);
 
-					// РЎС‡РёС‚С‹РІР°РµРј РёРјСЏ С„Р°Р№Р»Р° / РїР°РїРєРё
+					// Считываем имя файла / папки
 					if (cdfh.filenameLength) {
 						uint8_t* filename = malloc((cdfh.filenameLength + 1) * sizeof(uint8_t));
 						if (filename != NULL) {
-							// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјР°СЃСЃРёРІР°
+							// Инициализация массива
 							initIntArray(filename, cdfh.filenameLength + 1);
 
-							// РџРѕРїС‹С‚РєР° СЃС‡РёС‚Р°С‚СЊ РЅР°Р·РІР°РЅРёРµ С„Р°Р№Р»Р°
+							// Попытка считать название файла
 							fread((char*)filename, cdfh.filenameLength, 1, file);
 
-							// Р—Р°РїРѕР»РЅРµРЅРёРµ РїРѕСЃР»РµРґРЅРµРіРѕ СЌР»РµРјРµРЅС‚Р° РјР°СЃСЃРёРІР°
+							// Заполнение последнего элемента массива
 							filename[cdfh.filenameLength] = 0;
 
 							printf("%s,", (char*)filename);
@@ -321,8 +333,8 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 			}
 			else
 			{
-				// Р•СЃР»Рё РїРѕРґРїРёСЃСЊ РЅРµ РЅР°Р№РґРµРЅР° СЃРјРµС‰Р°РµРјСЃСЏ РЅР° РѕРґРёРЅ Р±Р°Р№С‚
-				// РѕС‚ РїСЂРµРґС‹РґСѓС‰РµР№ РїРѕР·РёС†РёРё РІ СЃС‚РѕСЂРѕРЅСѓ РЅР°С‡Р°Р»Р° С„Р°Р№Р»Р°
+				// Если подпись не найдена смещаемся на один байт
+				// от предыдущей позиции в сторону начала файла
 				fseek(file, -1 * (sizeof(signature) + 1), SEEK_CUR);
 			}
 		}
@@ -334,7 +346,7 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 	return result;
 }
 
-// РћРїСЂРµРґРµР»РµРЅРёРµ СЂР°Р·РјРµСЂР° С„Р°Р№Р»Р°
+// Определение размера файла
 uint64_t getFileSize(const char* file_name) {
 	uint64_t file_size = 0;
 
@@ -353,7 +365,7 @@ uint64_t getFileSize(const char* file_name) {
 	return file_size;
 }
 
-// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјР°СЃСЃРёРІР°
+// Инициализация массива
 void initIntArray(uint8_t* arr, int length) {
 	for (int i = 0; i < length; ++i) {
 		arr[i] = 0;
