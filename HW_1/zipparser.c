@@ -38,9 +38,9 @@ struct EOCD {
 	// .ZIP file comment -> (variable size)
 }
 #ifdef __unix__
-	__attribute__((packed))
+__attribute__((packed))
 #endif
-		;
+;
 
 /*
 	[central directory header 1]
@@ -93,29 +93,35 @@ struct CentralDirectoryFileHeader
 	// file comment(variable size)
 }
 #ifdef __unix__
-	__attribute__((packed))
+__attribute__((packed))
 #endif
-		;
+;
 
 // 
 struct LocalFileHeader
 {
-	uint32_t signature;
-	uint16_t versionToExtract;
-	uint16_t generalPurposeBitFlag;
-	uint16_t compressionMethod;
-	uint16_t modificationTime;
-	uint16_t modificationDate;
-	uint32_t crc32;
-	uint32_t compressedSize;
-	uint32_t uncompressedSize;
-	uint16_t filenameLength;
-	uint16_t extraFieldLength;
+	uint32_t signature;				// Подпись
+	uint16_t versionToExtract;		// Версия
+	uint16_t generalPurposeBitFlag;	// Флаги
+	uint16_t compressionMethod;		// Метод сжатия
+	uint16_t modificationTime;		// Время модификации файла 
+	uint16_t modificationDate;		// Дата изменения файла
+	uint32_t crc32;					// Контрольная сумма Crc-32
+	uint32_t compressedSize;		// Сжатый размер
+	uint32_t uncompressedSize;		// Несжатый размер
+	uint16_t filenameLength;		// Длина имени файла
+	uint16_t extraFieldLength;		// Длина дополнительного поля
+	//char* filename;				// Имя файла
+	//								// Дополнительное поле
 }
 #ifdef __unix__
-	__attribute__((packed))
+__attribute__((packed))
 #endif
-		;
+;
+
+void initIntArray(uint8_t* arr, int length);
+
+long int indexOf(FILE* file, uint32_t lfh_signature_for_search, long int startPosition);
 
 struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 
@@ -126,31 +132,79 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 	else
 	{
 		int c = 0, counter = 0;
-		uint32_t lfh_signature = 0;
-		startPosition -= sizeof(lfh_signature);
-		fseek(file, startPosition, SEEK_SET);
-		printf("Начали поиск начала ZIP файла, (%ld)\n", startPosition);
+		//uint32_t lfh_signature = 0;
+		uint32_t lfh_signature_for_search = LFH_Signature;
 
-		while ((c = getc(file)) != EOF) {
-			for (int i = 1; i < (int)sizeof(lfh_signature); ++i) {
-				((char*)&lfh_signature)[i - 1] = ((char*)&lfh_signature)[i];
-			}
-			((char*)&lfh_signature)[3] = c;
-			++startPosition;
-			if (counter++ < 100) {
-				printf("%ld --+-- LFH_Signature:0x%.8X --- 0x%.8X\n", startPosition, LFH_Signature, lfh_signature);
-			}
+		startPosition = indexOf(file, lfh_signature_for_search, startPosition);
 
-			if (LFH_Signature == lfh_signature) {
-				// Возвращаемся в начало ZIP
-				fseek(file, (-1) * sizeof(lfh_signature), SEEK_CUR);
-				startPosition -= sizeof(lfh_signature);
-				printf("Нашли начало ZIP файла, (%ld)\n", startPosition);
-				break;
-			}
-		}
+		//startPosition -= sizeof(lfh_signature);
+		//fseek(file, startPosition, SEEK_SET);
+		//printf("Начали поиск начала ZIP файла, (%ld)\n", startPosition);
+
+		//while (c != EOF && (c = getc(file)) != EOF) {
+		//	++startPosition;
+		//	if (c == ((char*)&lfh_signature_for_search)[0]) {
+		//		int find = 1;
+		//		for (int i = 1; i < (int)sizeof(lfh_signature_for_search); ++i) {
+		//			++startPosition;
+		//			if ((c = getc(file)) == EOF || ((char*)&lfh_signature_for_search)[i] != c) {
+		//				find = 0;
+		//				break;
+		//			}
+		//		}
+
+		//		if (find) {
+		//			// Возвращаемся в начало ZIP
+		//			fseek(file, (-1) * sizeof(lfh_signature_for_search), SEEK_CUR);
+		//			startPosition -= sizeof(lfh_signature_for_search);
+		//			printf("Нашли начало ZIP файла, (%ld)\n", startPosition);
+		//			break;
+		//		}
+		//	}
+
+		//	//for (int i = 1; i < (int)sizeof(lfh_signature); ++i) {
+		//	//	((char*)&lfh_signature)[i - 1] = ((char*)&lfh_signature)[i];
+		//	//}
+		//	//((char*)&lfh_signature)[3] = c;
+		//	//++startPosition;
+		//	//if (counter++ < 100) {
+		//	//	printf("%ld --+-- LFH_Signature:0x%.8X --- 0x%.8X\n", startPosition, LFH_Signature, lfh_signature);
+		//	//}
+
+		//	//if (LFH_Signature == lfh_signature) {
+		//	//	// Возвращаемся в начало ZIP
+		//	//	fseek(file, (-1) * sizeof(lfh_signature), SEEK_CUR);
+		//	//	startPosition -= sizeof(lfh_signature);
+		//	//	printf("Нашли начало ZIP файла, (%ld)\n", startPosition);
+		//	//	break;
+		//	//}
+		//}
 		struct TempReader tr = getTRReader(sizeof(uint32_t));
 
+		uint32_t lfh_signature = LFH_Signature;
+		long int lfh_position = indexOf(file, lfh_signature, startPosition);
+		
+		if (lfh_position > 0) {
+			struct LocalFileHeader* lfh_struct = (struct LocalFileHeader*)malloc(sizeof(struct LocalFileHeader));
+			int fileIndex = 1;
+			while (lfh_position > 0) {
+				printf("Нашли %dй LFH заголовок с помощью indexOf, (%u)\n", fileIndex++, lfh_position);
+				fseek(file, lfh_position, SEEK_SET);
+				fread((char*)lfh_struct, sizeof(struct LocalFileHeader), 1, file);
+				char* filename = (char*)malloc(lfh_struct->filenameLength * sizeof(char));
+				fread(filename, lfh_struct->filenameLength, 1, file);
+				printf("Длина имени файла: %u, имя: \"%s\"\n", lfh_struct->filenameLength, filename);
+				lfh_position = indexOf(file, lfh_signature, lfh_position + sizeof(struct LocalFileHeader));
+			}
+		}
+
+		uint32_t cdfh_signature = CDFH_Signature;
+		long int cdfh_position = indexOf(file, cdfh_signature, startPosition);
+		printf("Нашли первый CDFH заголовок с помощью indexOf, (%u)\n", cdfh_position);
+		uint32_t eocd_signature = EOCD_Signature;
+		long int eocd_position = indexOf(file, eocd_signature, startPosition);
+		printf("Нашли первый EOCD заголовок с помощью indexOf, (%u)\n", eocd_position);
+		
 		fseek(file, 0L, SEEK_SET);
 		int _c = 0, lfh_notfound = 1, cdfh_notfound = 1;
 		uint32_t result = 0;
@@ -370,4 +424,42 @@ void initIntArray(uint8_t* arr, int length) {
 	for (int i = 0; i < length; ++i) {
 		arr[i] = 0;
 	}
+}
+
+// Поиск вхождения
+long int indexOf(FILE* file, uint32_t lfh_signature_for_search, long int startPosition) {
+	char c = 0;
+	// Запомнили где был курсор
+	long int oldPosition = ftell(file);
+	fseek(file, startPosition, SEEK_SET);
+	// printf("Начали поиск начала вхождения маски, (%ld)\n", startPosition);
+	startPosition = -1;
+
+	while (!feof(file)) {
+		
+		c = getc(file);
+
+		if (c == ((char*)&lfh_signature_for_search)[0]) {
+			int find = 1;
+			for (int i = 1; i < (int)sizeof(lfh_signature_for_search); ++i) {
+
+				if (feof(file) || ((c = getc(file)) != ((char*)&lfh_signature_for_search)[i])) {
+					find = 0;
+					fseek(file, (-1) * (i - 1), SEEK_CUR);
+					break;
+				}
+			}
+
+			if (find) {
+				// Возвращаемся в начало ZIP
+				fseek(file, (-1) * sizeof(lfh_signature_for_search), SEEK_CUR);
+				startPosition = ftell(file);
+				// printf("Нашли начало вхождения маски, (%ld)\n", startPosition);
+				break;
+			}
+		}
+	}
+	// Вернули курсор на то место, где он был изначально
+	fseek(file, oldPosition, SEEK_SET);
+	return startPosition;
 }

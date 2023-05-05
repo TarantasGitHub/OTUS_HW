@@ -6,7 +6,7 @@ struct TempReader getTRReader(int count) {
 
 	char* c = malloc(count * sizeof(char));
 
-	if (c != NULL) {		
+	if (c != NULL) {
 		for (int i = 0; i < count; ++i) {
 			c[i] = 0;
 		}
