@@ -1,11 +1,11 @@
 struct TempReader {
 	int index;
 	int count;
-	char *container;
+	char * container;
 };
 
 struct TempReader getTRReader(int count);
 
-void addTRItem (struct TempReader *reader, int val); 
+void addTRItem (struct TempReader * reader, int val);
 
-void getTRValue (struct TempReader *reader, char *result); 
+void getTRValue (struct TempReader * reader, char * result);

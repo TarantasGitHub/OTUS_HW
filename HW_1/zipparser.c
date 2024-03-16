@@ -56,9 +56,9 @@ struct CentralDirectoryFileHeader
 {
 	// central file header signature -> 4 bytes  (0x02014b50)
 	uint32_t signature;
-	// version made by -> 2 bytes	
+	// version made by -> 2 bytes
 	uint16_t versionMadeBy;
-	// version needed to extract -> 2 bytes	
+	// version needed to extract -> 2 bytes
 	uint16_t versionToExtract;
 	// general purpose bit flag -> 2 bytes
 	uint16_t generalPurposeBitFlag;
@@ -97,22 +97,22 @@ __attribute__((packed))
 #endif
 ;
 
-// 
+//
 struct LocalFileHeader
 {
-	uint32_t signature;				// Ïîäïèñü
-	uint16_t versionToExtract;		// Âåðñèÿ
-	uint16_t generalPurposeBitFlag;	// Ôëàãè
-	uint16_t compressionMethod;		// Ìåòîä ñæàòèÿ
-	uint16_t modificationTime;		// Âðåìÿ ìîäèôèêàöèè ôàéëà 
-	uint16_t modificationDate;		// Äàòà èçìåíåíèÿ ôàéëà
-	uint32_t crc32;					// Êîíòðîëüíàÿ ñóììà Crc-32
-	uint32_t compressedSize;		// Ñæàòûé ðàçìåð
-	uint32_t uncompressedSize;		// Íåñæàòûé ðàçìåð
-	uint16_t filenameLength;		// Äëèíà èìåíè ôàéëà
-	uint16_t extraFieldLength;		// Äëèíà äîïîëíèòåëüíîãî ïîëÿ
-	//char* filename;				// Èìÿ ôàéëà
-	//								// Äîïîëíèòåëüíîå ïîëå
+	uint32_t signature;				// ÐŸÐ¾Ð´Ð¿Ð¸ÑÑŒ
+	uint16_t versionToExtract;		// Ð’ÐµÑ€ÑÐ¸Ñ
+	uint16_t generalPurposeBitFlag;	// Ð¤Ð»Ð°Ð³Ð¸
+	uint16_t compressionMethod;		// ÐœÐµÑ‚Ð¾Ð´ ÑÐ¶Ð°Ñ‚Ð¸Ñ
+	uint16_t modificationTime;		// Ð’Ñ€ÐµÐ¼Ñ Ð¼Ð¾Ð´Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ð¸ Ñ„Ð°Ð¹Ð»Ð°
+	uint16_t modificationDate;		// Ð”Ð°Ñ‚Ð° Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ Ñ„Ð°Ð¹Ð»Ð°
+	uint32_t crc32;					// ÐšÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ð°Ñ ÑÑƒÐ¼Ð¼Ð° Crc-32
+	uint32_t compressedSize;		// Ð¡Ð¶Ð°Ñ‚Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€
+	uint32_t uncompressedSize;		// ÐÐµÑÐ¶Ð°Ñ‚Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€
+	uint16_t filenameLength;		// Ð”Ð»Ð¸Ð½Ð° Ð¸Ð¼ÐµÐ½Ð¸ Ñ„Ð°Ð¹Ð»Ð°
+	uint16_t extraFieldLength;		// Ð”Ð»Ð¸Ð½Ð° Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾Ð³Ð¾ Ð¿Ð¾Ð»Ñ
+	//char* filename;				// Ð˜Ð¼Ñ Ñ„Ð°Ð¹Ð»Ð°
+	//								// Ð”Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾Ðµ Ð¿Ð¾Ð»Ðµ
 }
 #ifdef __unix__
 __attribute__((packed))
@@ -131,7 +131,7 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 	}
 	else
 	{
-		int c = 0, counter = 0;
+		//int c = 0, counter = 0;
 		//uint32_t lfh_signature = 0;
 		uint32_t lfh_signature_for_search = LFH_Signature;
 
@@ -139,7 +139,7 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 
 		//startPosition -= sizeof(lfh_signature);
 		//fseek(file, startPosition, SEEK_SET);
-		//printf("Íà÷àëè ïîèñê íà÷àëà ZIP ôàéëà, (%ld)\n", startPosition);
+		//printf("ÐÐ°Ñ‡Ð°Ð»Ð¸ Ð¿Ð¾Ð¸ÑÐº Ð½Ð°Ñ‡Ð°Ð»Ð° ZIP Ñ„Ð°Ð¹Ð»Ð°, (%ld)\n", startPosition);
 
 		//while (c != EOF && (c = getc(file)) != EOF) {
 		//	++startPosition;
@@ -154,10 +154,10 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 		//		}
 
 		//		if (find) {
-		//			// Âîçâðàùàåìñÿ â íà÷àëî ZIP
+		//			// Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ÑÑ Ð² Ð½Ð°Ñ‡Ð°Ð»Ð¾ ZIP
 		//			fseek(file, (-1) * sizeof(lfh_signature_for_search), SEEK_CUR);
 		//			startPosition -= sizeof(lfh_signature_for_search);
-		//			printf("Íàøëè íà÷àëî ZIP ôàéëà, (%ld)\n", startPosition);
+		//			printf("ÐÐ°ÑˆÐ»Ð¸ Ð½Ð°Ñ‡Ð°Ð»Ð¾ ZIP Ñ„Ð°Ð¹Ð»Ð°, (%ld)\n", startPosition);
 		//			break;
 		//		}
 		//	}
@@ -172,10 +172,10 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 		//	//}
 
 		//	//if (LFH_Signature == lfh_signature) {
-		//	//	// Âîçâðàùàåìñÿ â íà÷àëî ZIP
+		//	//	// Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ÑÑ Ð² Ð½Ð°Ñ‡Ð°Ð»Ð¾ ZIP
 		//	//	fseek(file, (-1) * sizeof(lfh_signature), SEEK_CUR);
 		//	//	startPosition -= sizeof(lfh_signature);
-		//	//	printf("Íàøëè íà÷àëî ZIP ôàéëà, (%ld)\n", startPosition);
+		//	//	printf("ÐÐ°ÑˆÐ»Ð¸ Ð½Ð°Ñ‡Ð°Ð»Ð¾ ZIP Ñ„Ð°Ð¹Ð»Ð°, (%ld)\n", startPosition);
 		//	//	break;
 		//	//}
 		//}
@@ -183,28 +183,28 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 
 		uint32_t lfh_signature = LFH_Signature;
 		long int lfh_position = indexOf(file, lfh_signature, startPosition);
-		
+
 		if (lfh_position > 0) {
 			struct LocalFileHeader* lfh_struct = (struct LocalFileHeader*)malloc(sizeof(struct LocalFileHeader));
 			int fileIndex = 1;
 			while (lfh_position > 0) {
-				printf("Íàøëè %dé LFH çàãîëîâîê ñ ïîìîùüþ indexOf, (%u)\n", fileIndex++, lfh_position);
+				printf("ÐÐ°ÑˆÐ»Ð¸ %dÐ¹ LFH Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº Ñ Ð¿Ð¾Ð¼Ð¾Ñ‰ÑŒÑŽ indexOf, (%ld)\n", fileIndex++, lfh_position);
 				fseek(file, lfh_position, SEEK_SET);
 				fread((char*)lfh_struct, sizeof(struct LocalFileHeader), 1, file);
 				char* filename = (char*)malloc(lfh_struct->filenameLength * sizeof(char));
 				fread(filename, lfh_struct->filenameLength, 1, file);
-				printf("Äëèíà èìåíè ôàéëà: %u, èìÿ: \"%s\"\n", lfh_struct->filenameLength, filename);
+				printf("Ð”Ð»Ð¸Ð½Ð° Ð¸Ð¼ÐµÐ½Ð¸ Ñ„Ð°Ð¹Ð»Ð°: %u, Ð¸Ð¼Ñ: \"%s\"\n", lfh_struct->filenameLength, filename);
 				lfh_position = indexOf(file, lfh_signature, lfh_position + sizeof(struct LocalFileHeader));
 			}
 		}
 
 		uint32_t cdfh_signature = CDFH_Signature;
 		long int cdfh_position = indexOf(file, cdfh_signature, startPosition);
-		printf("Íàøëè ïåðâûé CDFH çàãîëîâîê ñ ïîìîùüþ indexOf, (%u)\n", cdfh_position);
+		printf("ÐÐ°ÑˆÐ»Ð¸ Ð¿ÐµÑ€Ð²Ñ‹Ð¹ CDFH Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº Ñ Ð¿Ð¾Ð¼Ð¾Ñ‰ÑŒÑŽ indexOf, (%ld)\n", cdfh_position);
 		uint32_t eocd_signature = EOCD_Signature;
 		long int eocd_position = indexOf(file, eocd_signature, startPosition);
-		printf("Íàøëè ïåðâûé EOCD çàãîëîâîê ñ ïîìîùüþ indexOf, (%u)\n", eocd_position);
-		
+		printf("ÐÐ°ÑˆÐ»Ð¸ Ð¿ÐµÑ€Ð²Ñ‹Ð¹ EOCD Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº Ñ Ð¿Ð¾Ð¼Ð¾Ñ‰ÑŒÑŽ indexOf, (%ld)\n", eocd_position);
+
 		fseek(file, 0L, SEEK_SET);
 		int _c = 0, lfh_notfound = 1, cdfh_notfound = 1;
 		uint32_t result = 0;
@@ -212,26 +212,28 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 		while ((_c = getc(file)) != EOF) {
 			addTRItem(&tr, _c);
 			getTRValue(&tr, (char*)&result);
-			if (lfh_notfound) {
+			if (lfh_notfound)
+			{
 				++lfh_offset;
 			}
-			if (cdfh_notfound) {
+			if (cdfh_notfound)
+			{
 				++cdfh_offset;
 			}
-			if (lfh_notfound && lfh_offset > 30400 && lfh_offset < 30600) {
+			if (lfh_notfound && lfh_offset > 30400 && lfh_offset < 30600)
+			{
 				printf("%u -- LFH_Signature:0x%.8X --- 0x%.8X\n", lfh_offset, LFH_Signature, result);
 			}
-
 
 			if (lfh_notfound && LFH_Signature == result) {
 				lfh_offset -= sizeof(result);
 				lfh_notfound = 0;
-				printf("Íàøëè íà÷àëî ZIP ôàéëà ñ ïîìîùüþ ñòðóêòóðû, (%u)\n", lfh_offset);
+				printf("ÐÐ°ÑˆÐ»Ð¸ Ð½Ð°Ñ‡Ð°Ð»Ð¾ ZIP Ñ„Ð°Ð¹Ð»Ð° Ñ Ð¿Ð¾Ð¼Ð¾Ñ‰ÑŒÑŽ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñ‹, (%u)\n", lfh_offset);
 			}
 			else	if (cdfh_notfound && CDFH_Signature == result) {
 				cdfh_offset -= sizeof(result);
 				cdfh_notfound = 0;
-				printf("Íàøëè ïåðâûé CDFH çàãîëîâîê ñ ïîìîùüþ ñòðóêòóðû, (%u)\n", cdfh_offset);
+				printf("ÐÐ°ÑˆÐ»Ð¸ Ð¿ÐµÑ€Ð²Ñ‹Ð¹ CDFH Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº Ñ Ð¿Ð¾Ð¼Ð¾Ñ‰ÑŒÑŽ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñ‹, (%u)\n", cdfh_offset);
 			}
 			if (!lfh_notfound && !cdfh_notfound) {
 				break;
@@ -258,47 +260,47 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 		uint64_t file_size = getFileSize(file_name);
 		uint32_t signature = 0;
 
-		// Èùåì ñèãíàòóðó EOCD
-		// ñíà÷àëà äåëàåì ñìåùåíèå â êîíåö ôàéëà,
-		// íåäîõîäÿ äî êîíöà íà ðàçìåð signature
+		// Ð˜Ñ‰ÐµÐ¼ ÑÐ¸Ð³Ð½Ð°Ñ‚ÑƒÑ€Ñƒ EOCD
+		// ÑÐ½Ð°Ñ‡Ð°Ð»Ð° Ð´ÐµÐ»Ð°ÐµÐ¼ ÑÐ¼ÐµÑ‰ÐµÐ½Ð¸Ðµ Ð² ÐºÐ¾Ð½ÐµÑ† Ñ„Ð°Ð¹Ð»Ð°,
+		// Ð½ÐµÐ´Ð¾Ñ…Ð¾Ð´Ñ Ð´Ð¾ ÐºÐ¾Ð½Ñ†Ð° Ð½Ð° Ñ€Ð°Ð·Ð¼ÐµÑ€ signature
 		fseek(file, (-1) * sizeof(struct EOCD), SEEK_END);
 
 		for (uint64_t offset = file_size - sizeof(signature); offset != 0; --offset) {
-			// Ñ÷èòûâàåì ÷åòûðå áàéòà ñèãíàòóðû
+			// Ð¡Ñ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ Ñ‡ÐµÑ‚Ñ‹Ñ€Ðµ Ð±Ð°Ð¹Ñ‚Ð° ÑÐ¸Ð³Ð½Ð°Ñ‚ÑƒÑ€Ñ‹
 			fread((char*)&signature, sizeof(signature), 1, file);
 
 			if (EOCD_Signature == signature) {
-				// Åñòü êîíòàêò!
-				printf("Íàøëè ñèãíàòóðó EOCD.\n");
+				// Ð•ÑÑ‚ÑŒ ÐºÐ¾Ð½Ñ‚Ð°ÐºÑ‚!
+				printf("ÐÐ°ÑˆÐ»Ð¸ ÑÐ¸Ð³Ð½Ð°Ñ‚ÑƒÑ€Ñƒ EOCD.\n");
 				struct EOCD eocd;
 
-				// Âîçâðàùåíèå ïîçèöèè êóðñîðà íà òî÷êó ñ÷èòûâàíèÿ 
-				// ñòðóêòóðû EOCD
+				// Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ð¸ ÐºÑƒÑ€ÑÐ¾Ñ€Ð° Ð½Ð° Ñ‚Ð¾Ñ‡ÐºÑƒ ÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°Ð½Ð¸Ñ
+				// ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñ‹ EOCD
 				fseek(file, -1 * (sizeof(signature)), SEEK_CUR);
 
-				// Ñ÷èòûâàåì ñòðóêòóðó EOCD
+				// Ð¡Ñ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñƒ EOCD
 				fread((char*)&eocd, sizeof(eocd), 1, file);
 
 				if (EOCD_Signature == eocd.signature) {
-					printf("EOCD ñ÷èòàëñÿ ïðàâèëüíî.\n");
+					printf("EOCD ÑÑ‡Ð¸Ñ‚Ð°Ð»ÑÑ Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾.\n");
 				}
 				else
 				{
-					printf("EOCD ñ÷èòàëñÿ íå ïðàâèëüíî.\n");
+					printf("EOCD ÑÑ‡Ð¸Ñ‚Ð°Ð»ÑÑ Ð½Ðµ Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ð¾.\n");
 				}
 
 				printf("eocd.commentLength: %d\n", eocd.commentLength);
 
 				if (eocd.commentLength) {
-					// Ìàññèâ äëÿ êîììåíòàðèÿ
+					// ÐœÐ°ÑÑÐ¸Ð² Ð´Ð»Ñ ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ñ
 					uint8_t* comment = malloc((eocd.commentLength + 1) * sizeof(uint8_t));
 					if (comment != NULL) {
-						// Èíèöèàëèçàöèÿ ìàññèâà
+						// Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¼Ð°ÑÑÐ¸Ð²Ð°
 						initIntArray(comment, eocd.commentLength + 1);
 
 						fread((char*)comment, eocd.commentLength, 1, file);
 						comment[eocd.commentLength] = 0;
-						printf("%s, ýòî êîììåíòàðèè\n", (char*)comment);
+						printf("%s, ÑÑ‚Ð¾ ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ð¸\n", (char*)comment);
 					}
 				}
 
@@ -309,24 +311,24 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 					int seek[3] = { SEEK_CUR, SEEK_SET, SEEK_END };
 
 					for (int i = 1; i < 2; ++i) {
-						// Ñìåùåíèå êóðñîðà íà ïîçèöèþ ïåðâîé çàïèñè
+						// Ð¡Ð¼ÐµÑ‰ÐµÐ½Ð¸Ðµ ÐºÑƒÑ€ÑÐ¾Ñ€Ð° Ð½Ð° Ð¿Ð¾Ð·Ð¸Ñ†Ð¸ÑŽ Ð¿ÐµÑ€Ð²Ð¾Ð¹ Ð·Ð°Ð¿Ð¸ÑÐ¸
 						long int offset = (seek[i] == SEEK_END ? (-1) : 1) * (long int)eocd.centralDirectoryOffset;
 						offset += startPosition;
 						offset -= 111;
 						printf("SEEK: %d, offset: %ld\n", seek[i], offset);
 						fseek(file, cdfh_offset /*-offset*/, seek[i]);
 
-						// ×òåíèå ñòðóêòóðû CentralDirectoryFileHeader
+						// Ð§Ñ‚ÐµÐ½Ð¸Ðµ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñ‹ CentralDirectoryFileHeader
 						fread((char*)&cdfh, sizeof(cdfh), 1, file);
 
 						if (CDFH_Signature != cdfh.signature) {
-							// Îøèáêà
-							printf("Îøèáêà îïðåäåëåíèÿ cdfh.signature (ïîëó÷èëè: 0x%.8X âìåñòî: 0x%.8X)\n",
+							// ÐžÑˆÐ¸Ð±ÐºÐ°
+							printf("ÐžÑˆÐ¸Ð±ÐºÐ° Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð¸Ñ cdfh.signature (Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ð»Ð¸: 0x%.8X Ð²Ð¼ÐµÑÑ‚Ð¾: 0x%.8X)\n",
 								cdfh.signature, CDFH_Signature);
 							// break;
 						}
 						else {
-							printf("Îïðåäåëèëè cdfh.signature (ïîëó÷èëè: 0x%.8X âìåñòî: 0x%.8X)\n",
+							printf("ÐžÐ¿Ñ€ÐµÐ´ÐµÐ»Ð¸Ð»Ð¸ cdfh.signature (Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ð»Ð¸: 0x%.8X Ð²Ð¼ÐµÑÑ‚Ð¾: 0x%.8X)\n",
 								cdfh.signature, CDFH_Signature);
 						}
 
@@ -364,19 +366,19 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 						}
 						++index;
 					}
-					printf("Çàêîí÷èëè íà %u èòåðàöèè\n", index);
+					printf("Ð—Ð°ÐºÐ¾Ð½Ñ‡Ð¸Ð»Ð¸ Ð½Ð° %u Ð¸Ñ‚ÐµÑ€Ð°Ñ†Ð¸Ð¸\n", index);
 
-					// Ñ÷èòûâàåì èìÿ ôàéëà / ïàïêè
+					// Ð¡Ñ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ Ð¸Ð¼Ñ Ñ„Ð°Ð¹Ð»Ð° / Ð¿Ð°Ð¿ÐºÐ¸
 					if (cdfh.filenameLength) {
 						uint8_t* filename = malloc((cdfh.filenameLength + 1) * sizeof(uint8_t));
 						if (filename != NULL) {
-							// Èíèöèàëèçàöèÿ ìàññèâà
+							// Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¼Ð°ÑÑÐ¸Ð²Ð°
 							initIntArray(filename, cdfh.filenameLength + 1);
 
-							// Ïîïûòêà ñ÷èòàòü íàçâàíèå ôàéëà
+							// ÐŸÐ¾Ð¿Ñ‹Ñ‚ÐºÐ° ÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ðµ Ñ„Ð°Ð¹Ð»Ð°
 							fread((char*)filename, cdfh.filenameLength, 1, file);
 
-							// Çàïîëíåíèå ïîñëåäíåãî ýëåìåíòà ìàññèâà
+							// Ð—Ð°Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ðµ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ³Ð¾ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð° Ð¼Ð°ÑÑÐ¸Ð²Ð°
 							filename[cdfh.filenameLength] = 0;
 
 							printf("%s,", (char*)filename);
@@ -387,8 +389,8 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 			}
 			else
 			{
-				// Åñëè ïîäïèñü íå íàéäåíà ñìåùàåìñÿ íà îäèí áàéò
-				// îò ïðåäûäóùåé ïîçèöèè â ñòîðîíó íà÷àëà ôàéëà
+				// Ð•ÑÐ»Ð¸ Ð¿Ð¾Ð´Ð¿Ð¸ÑÑŒ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð° ÑÐ¼ÐµÑ‰Ð°ÐµÐ¼ÑÑ Ð½Ð° Ð¾Ð´Ð¸Ð½ Ð±Ð°Ð¹Ñ‚
+				// Ð¾Ñ‚ Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰ÐµÐ¹ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ð¸ Ð² ÑÑ‚Ð¾Ñ€Ð¾Ð½Ñƒ Ð½Ð°Ñ‡Ð°Ð»Ð° Ñ„Ð°Ð¹Ð»Ð°
 				fseek(file, -1 * (sizeof(signature) + 1), SEEK_CUR);
 			}
 		}
@@ -400,7 +402,7 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 	return result;
 }
 
-// Îïðåäåëåíèå ðàçìåðà ôàéëà
+// ÐžÐ¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð¸Ðµ Ñ€Ð°Ð·Ð¼ÐµÑ€Ð° Ñ„Ð°Ð¹Ð»Ð°
 uint64_t getFileSize(const char* file_name) {
 	uint64_t file_size = 0;
 
@@ -419,24 +421,24 @@ uint64_t getFileSize(const char* file_name) {
 	return file_size;
 }
 
-// Èíèöèàëèçàöèÿ ìàññèâà
+// Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¼Ð°ÑÑÐ¸Ð²Ð°
 void initIntArray(uint8_t* arr, int length) {
 	for (int i = 0; i < length; ++i) {
 		arr[i] = 0;
 	}
 }
 
-// Ïîèñê âõîæäåíèÿ
+// ÐŸÐ¾Ð¸ÑÐº Ð²Ñ…Ð¾Ð¶Ð´ÐµÐ½Ð¸Ñ
 long int indexOf(FILE* file, uint32_t lfh_signature_for_search, long int startPosition) {
 	char c = 0;
-	// Çàïîìíèëè ãäå áûë êóðñîð
+	// Ð—Ð°Ð¿Ð¾Ð¼Ð½Ð¸Ð»Ð¸ Ð³Ð´Ðµ Ð±Ñ‹Ð» ÐºÑƒÑ€ÑÐ¾Ñ€
 	long int oldPosition = ftell(file);
 	fseek(file, startPosition, SEEK_SET);
-	// printf("Íà÷àëè ïîèñê íà÷àëà âõîæäåíèÿ ìàñêè, (%ld)\n", startPosition);
+	// printf("ÐÐ°Ñ‡Ð°Ð»Ð¸ Ð¿Ð¾Ð¸ÑÐº Ð½Ð°Ñ‡Ð°Ð»Ð° Ð²Ñ…Ð¾Ð¶Ð´ÐµÐ½Ð¸Ñ Ð¼Ð°ÑÐºÐ¸, (%ld)\n", startPosition);
 	startPosition = -1;
 
 	while (!feof(file)) {
-		
+
 		c = getc(file);
 
 		if (c == ((char*)&lfh_signature_for_search)[0]) {
@@ -451,15 +453,15 @@ long int indexOf(FILE* file, uint32_t lfh_signature_for_search, long int startPo
 			}
 
 			if (find) {
-				// Âîçâðàùàåìñÿ â íà÷àëî ZIP
+				// Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ÑÑ Ð² Ð½Ð°Ñ‡Ð°Ð»Ð¾ ZIP
 				fseek(file, (-1) * sizeof(lfh_signature_for_search), SEEK_CUR);
 				startPosition = ftell(file);
-				// printf("Íàøëè íà÷àëî âõîæäåíèÿ ìàñêè, (%ld)\n", startPosition);
+				// printf("ÐÐ°ÑˆÐ»Ð¸ Ð½Ð°Ñ‡Ð°Ð»Ð¾ Ð²Ñ…Ð¾Ð¶Ð´ÐµÐ½Ð¸Ñ Ð¼Ð°ÑÐºÐ¸, (%ld)\n", startPosition);
 				break;
 			}
 		}
 	}
-	// Âåðíóëè êóðñîð íà òî ìåñòî, ãäå îí áûë èçíà÷àëüíî
+	// Ð’ÐµÑ€Ð½ÑƒÐ»Ð¸ ÐºÑƒÑ€ÑÐ¾Ñ€ Ð½Ð° Ñ‚Ð¾ Ð¼ÐµÑÑ‚Ð¾, Ð³Ð´Ðµ Ð¾Ð½ Ð±Ñ‹Ð» Ð¸Ð·Ð½Ð°Ñ‡Ð°Ð»ÑŒÐ½Ð¾
 	fseek(file, oldPosition, SEEK_SET);
 	return startPosition;
 }

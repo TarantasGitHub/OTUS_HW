@@ -2,7 +2,7 @@
 #include "zipparser.h"
 
 #ifdef _WIN32
-//#include <locale.h>       //  здесь "живёт" setlocale(LC_ALL, "rus");
+//#include <locale.h>       //  Р·РґРµСЃСЊ "Р¶РёРІС‘С‚" setlocale(LC_ALL, "rus");
 #include <Windows.h>
 #endif
 
@@ -10,15 +10,15 @@ int main(int argc, char* argv[])
 {
 #ifdef _WIN32
 	//setlocale(LC_ALL, "rus");
-	SetConsoleCP(1251); //установка кодовой страницы win-cp 1251 в поток ввода
-	SetConsoleOutputCP(1251); //установка кодовой страницы win-cp 1251 в поток вывода
+	SetConsoleCP(1251); //СѓСЃС‚Р°РЅРѕРІРєР° РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹ win-cp 1251 РІ РїРѕС‚РѕРє РІРІРѕРґР°
+	SetConsoleOutputCP(1251); //СѓСЃС‚Р°РЅРѕРІРєР° РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹ win-cp 1251 РІ РїРѕС‚РѕРє РІС‹РІРѕРґР°
 #endif
 
-	if (argc > 1)
+    if (argc > 1)
 	{
 		for (int i = 0; i < argc; i++)
 		{
-			printf("Параметр № %d %s\n", i, argv[i]);
+			printf("РџР°СЂР°РјРµС‚СЂ в„– %d %s\n", i, argv[i]);
 		}
 
 		FILE* file;
@@ -26,9 +26,9 @@ int main(int argc, char* argv[])
 		if ((file = fopen(argv[1], "rb")) != NULL)
 		{
 #ifdef _WIN32
-			printf("Файл \"%s\" найден. Размер %llu \n", argv[1], getFileSize(argv[1]));
+			printf("Р¤Р°Р№Р» \"%s\" РЅР°Р№РґРµРЅ. Р Р°Р·РјРµСЂ %llu \n", argv[1], getFileSize(argv[1]));
 #else
-			printf("Файл \"%s\" найден. Размер %lu \n", argv[1], getFileSize(argv[1]));
+			printf("Р¤Р°Р№Р» \"%s\" РЅР°Р№РґРµРЅ. Р Р°Р·РјРµСЂ %lu \n", argv[1], getFileSize(argv[1]));
 #endif
 
 			int c;
@@ -40,11 +40,11 @@ int main(int argc, char* argv[])
 
 				if (jpgIsEnd)
 				{
-					printf("Файл содержит что-то большее, чем один jpg\n");
+					printf("Р¤Р°Р№Р» СЃРѕРґРµСЂР¶РёС‚ С‡С‚Рѕ-С‚Рѕ Р±РѕР»СЊС€РµРµ, С‡РµРј РѕРґРёРЅ jpg\n");
 					index = ftell(file);
 					fclose(file);
 
-					struct ZIP_File zip_file = getZipFile(argv[1], index);
+					//struct ZIP_File zip_file = getZipFile(argv[1], index);
 					break;
 				}
 				else {
@@ -53,12 +53,12 @@ int main(int argc, char* argv[])
 
 				if (prevChar == 0XFF && c == 0XD9)
 				{
-					printf("\nКонец данных JPG файла, строка %d \n", index);
+					printf("\nРљРѕРЅРµС† РґР°РЅРЅС‹С… JPG С„Р°Р№Р»Р°, СЃС‚СЂРѕРєР° %d \n", index);
 					jpgIsEnd = 1;
 				}
 				else if (prevChar == 0XFF && c == 0XD8)
 				{
-					printf("Файл начинается как JPG\n");
+					printf("Р¤Р°Р№Р» РЅР°С‡РёРЅР°РµС‚СЃСЏ РєР°Рє JPG\n");
 				}
 
 				prevChar = c;
@@ -67,9 +67,9 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			printf("Файл  \"%s\" не найден.\n", argv[1]);
+			printf("Р¤Р°Р№Р»  \"%s\" РЅРµ РЅР°Р№РґРµРЅ.\n", argv[1]);
 		}
 	}
 
-	return 0;
+    return 0;
 }
