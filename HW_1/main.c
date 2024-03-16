@@ -5,6 +5,7 @@
 //#include <locale.h>       //  здесь "живёт" setlocale(LC_ALL, "rus");
 #include <Windows.h>
 #endif
+#define DEBUG
 
 int main(int argc, char* argv[])
 {
@@ -42,9 +43,9 @@ int main(int argc, char* argv[])
 				{
 					printf("Файл содержит что-то большее, чем один jpg\n");
 					index = ftell(file);
-					fclose(file);
+					//fclose(file);
 
-					//struct ZIP_File zip_file = getZipFile(argv[1], index);
+					struct ZIP_File zip_file = getZipFile(argv[1], index);
 					break;
 				}
 				else {

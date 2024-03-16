@@ -1,11 +1,10 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "binaryitem.h"
 
 struct TempReader getTRReader(int count)
 {
-    char* c = malloc(count * sizeof(char));
+    char * c = malloc(count * sizeof(char));
 
 	if (c != NULL)
 	{
@@ -25,7 +24,7 @@ struct TempReader getTRReader(int count)
 	return reader;
 }
 
-void addTRItem(struct TempReader* reader, int val)
+void addTRItem(struct TempReader *reader, int val)
 {
 	if (reader->index < reader->count - 1)
 	{
@@ -37,14 +36,20 @@ void addTRItem(struct TempReader* reader, int val)
 	}
 
 	*(reader->container + reader->index) = val;
+	#ifdef DEBUG
 	unsigned int wer = 0;
 	getTRValue(reader, (char*)&wer);
 
-	//	printf("Вставка значения 0x%x в позицию %d (%p -- 0x%x -- 0x%X)",
-	//		       	val, reader->index, reader->container+reader->index, *(reader->container+reader->index), wer);
+	printf("Вставка значения 0x%x в позицию %d (%p -- 0x%x -- 0x%X)",
+			   	val,
+	            reader->index,
+	            reader->container+reader->index,
+	            *(reader->container+reader->index),
+	            wer);
+	#endif
 }
 
-void getTRValue(struct TempReader * reader, char * result)
+void getTRValue(struct TempReader *reader, char *result)
 {
 	//	result = (char *)malloc(sizeof(char)*reader->count);
 	if (result == NULL)
