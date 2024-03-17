@@ -424,21 +424,15 @@ struct ZIP_File getZipFile(const char* file_name, long int startPosition) {
 }
 
 // Определение размера файла
-uint64_t getFileSize(const char* file_name)
+uint64_t getFileSize(const char *file_name)
 {
 	uint64_t file_size = 0;
-
 	FILE* file = fopen(file_name, "rb");
 
-	if (file == NULL)
-	{
-		file_size = -1;
-	}
+	if (file == NULL) { file_size = -1; }
 	else
 	{
-		while (getc(file) != EOF) {
-			++file_size;
-		}
+		while (getc(file) != EOF) { ++file_size; }
 		fclose(file);
 	}
 	return file_size;
@@ -454,42 +448,43 @@ void initIntArray(uint8_t* arr, int length)
 }
 
 // Поиск вхождения
-long int indexOf(FILE* file, uint32_t lfh_signature_for_search, long int startPosition)
+long int indexOf(FILE *file, uint32_t lfh_signature_for_search, long int startPosition)
 {
-	char c = 0;
+	int c = 0;
 	// Запомнили где был курсор
 	long int oldPosition = ftell(file);
-	fseek(file, startPosition, SEEK_SET);
-	// printf("Начали поиск начала вхождения маски, (%ld)\n", startPosition);
-	startPosition = -1;
-
-	while (!feof(file))
+	if (fseek(file, startPosition, SEEK_SET) == 0)
 	{
-		c = getc(file);
+        // printf("Начали поиск начала вхождения маски, (%ld)\n", startPosition);
+        startPosition = -1;
 
-		if (c == ((char*)&lfh_signature_for_search)[0])
-		{
-			int find = 1;
-			for (int i = 1; i < (int)sizeof(lfh_signature_for_search); ++i)
-			{
+        while (!feof(file))
+        {
+            c = getc(file);
 
-				if (feof(file) || ((c = getc(file)) != ((char*)&lfh_signature_for_search)[i]))
-				{
-					find = 0;
-					fseek(file, (-1) * (i - 1), SEEK_CUR);
-					break;
-				}
-			}
+            if (c == ((char*)&lfh_signature_for_search)[0])
+            {
+                int find = 1;
+                for (int i = 1; i < (int)sizeof(lfh_signature_for_search); ++i)
+                {
+                    if (feof(file) || ((c = getc(file)) != ((char*)&lfh_signature_for_search)[i]))
+                    {
+                        find = 0;
+                        fseek(file, (-1) * (i - 1), SEEK_CUR);
+                        break;
+                    }
+                }
 
-			if (find)
-			{
-				// Возвращаемся в начало ZIP
-				fseek(file, (-1) * sizeof(lfh_signature_for_search), SEEK_CUR);
-				startPosition = ftell(file);
-				// printf("Нашли начало вхождения маски, (%ld)\n", startPosition);
-				break;
-			}
-		}
+                if (find)
+                {
+                    // Возвращаемся в начало ZIP
+                    fseek(file, (-1) * sizeof(lfh_signature_for_search), SEEK_CUR);
+                    startPosition = ftell(file);
+                    // printf("Нашли начало вхождения маски, (%ld)\n", startPosition);
+                    break;
+                }
+            }
+        }
 	}
 	// Вернули курсор на то место, где он был изначально
 	fseek(file, oldPosition, SEEK_SET);

@@ -9,14 +9,10 @@ struct TempReader getTRReader(int count)
 	if (c != NULL)
 	{
 		for (int i = 0; i < count; ++i)
-		{
-			c[i] = 0;
-		}
+		{ c[i] = 0; }
 	}
 	else
-	{
-		printf("Error malloc in getTRReader.");
-	}
+	{ printf("Error malloc in getTRReader."); }
 
 	struct TempReader reader = {.index = 0,
                                 .count = count,
@@ -24,16 +20,12 @@ struct TempReader getTRReader(int count)
 	return reader;
 }
 
-void addTRItem(struct TempReader *reader, int val)
+void addTRItem(struct TempReader * reader, int val)
 {
 	if (reader->index < reader->count - 1)
-	{
-		reader->index += 1;
-	}
+	{ reader->index += 1; }
 	else
-	{
-		reader->index = 0;
-	}
+	{ reader->index = 0; }
 
 	*(reader->container + reader->index) = val;
 	#ifdef DEBUG
@@ -49,9 +41,9 @@ void addTRItem(struct TempReader *reader, int val)
 	#endif
 }
 
-void getTRValue(struct TempReader *reader, char *result)
+void getTRValue(struct TempReader * reader, char * result)
 {
-	//	result = (char *)malloc(sizeof(char)*reader->count);
+	//	result = (char *)malloc(sizeof(char) * reader->count);
 	if (result == NULL)
 	{
 		fprintf(stderr, "Error malloc in getTRValue.");
